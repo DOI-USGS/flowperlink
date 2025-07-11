@@ -98,7 +98,6 @@ python preprocess_flowlines.py
     --flow_layer NHDPlusFlow 
     --from_identifier FromPermID 
     --to_identifier ToPermID  
-
     --flowlineVAA_layer NHDPlusFlowlineVAA 
     --flowlinesVAA_identifier NHDPlusID 
     --divergence_field Divergence 
