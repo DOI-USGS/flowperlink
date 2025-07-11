@@ -1,0 +1,9 @@
+name: flowperlink
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - requests
+  - geopandas
+  - hydrolink
+  - sciencebasepy

@@ -1,0 +1,64 @@
+[project]
+name = "flowperlink"
+dynamic = ["version"]
+description = 'flowperlink'
+readme = "README.md"
+requires-python = ">=3.9"
+license = "unlicense"
+keywords = []
+authors = [
+  { name = "Steven Pestana", email = "spestana@usgs.gov" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/Steven Pestana/flowperlink#readme"
+Issues = "https://github.com/Steven Pestana/flowperlink/issues"
+Source = "https://github.com/Steven Pestana/flowperlink"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "flowperlink/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args: tests}"
+
+[tool.coverage.run]
+source_pkgs = ["flowperlink", "tests"]
+branch = true
+parallel = true
+omit = [
+  "flowperlink/__about__.py",
+]
+
+[tool.coverage.paths]
+flowperlink = ["flowperlink",]
+tests = ["tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["flowperlink"]
