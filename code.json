@@ -3,7 +3,7 @@
       "name": "flowperlink",
       "organization": "U.S. Geological Survey",
       "description": "Python package with methods and command line tools to link flow permanence (FLOwPER) observations to hydrography datasets.",
-      "version": "0.0.1",
+      "version": "1.0.0",
       "status": "Release Candidate",
   
       "permissions": {

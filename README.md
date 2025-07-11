@@ -1,6 +1,6 @@
 # flowperlink
 
-![Generic badge](https://img.shields.io/badge/Version-0.0.1-<COLOR>.svg)
+![Generic badge](https://img.shields.io/badge/Version-1.0.0-<COLOR>.svg)
 
 The flowperlink package extends the functionality of hydrolink by adding new features specific for linking FLOwPER (streamflow permanence) observation data to various hydrography datasets (e.g. NHDPlusHR, TerrainWorks), for ready ingestion of the observation data into the Probability of Streamflow Permanence (PROSPER) model ([Jaeger et al., 2019](https://doi.org/10.1016/j.hydroa.2018.100005)).
 
@@ -16,6 +16,10 @@ The flowperlink package extends the functionality of hydrolink by adding new fea
 Steven Pestana - spestana@usgs.gov
 
 ## USGS Software Release Information
+
+citation
+
+IPDS  number
 
 ## Quick Start
 
