@@ -1,4 +1,4 @@
-name: flowperlink
+name: flowperenv
 channels:
   - conda-forge
 dependencies:
