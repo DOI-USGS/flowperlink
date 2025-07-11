@@ -1,16 +1,24 @@
 [project]
-name = "flowperlink"
+name = "Extends the functionality of hydrolink for snapping FLOwPER (streamflow permanence) observation data to various hydrography datasets."
 dynamic = ["version"]
 description = 'flowperlink'
 readme = "README.md"
 requires-python = ">=3.9"
 license = "unlicense"
-keywords = []
+license-files = ["LICENSE.md", "AUTHORS.rst", "DISCLAIMER.md", "CODE_OF_CONDUCT.md"]
+keywords = ["FLOwPER", "hydrolink", "streamflow permanence", "PROSPER", "hydrology"]
 authors = [
   { name = "Steven Pestana", email = "spestana@usgs.gov" },
+  { name = "Laura Labriola", email = "llabriola@usgs.gov" },
+]
+maintainers = [
+  { name = "Steven Pestana", email = "spestana@usgs.gov" }
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Topic :: Scientific/Engineering :: Hydrology",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
@@ -20,12 +28,18 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "requests",
+  "geopandas",
+  "sciencebasepy",
+  "hydrolink @ git+https://code.usgs.gov/sas/bioscience/hlt/hydrolink.git@custom-hydrography",
+]
 
 [project.urls]
-Documentation = "https://github.com/Steven Pestana/flowperlink#readme"
-Issues = "https://github.com/Steven Pestana/flowperlink/issues"
-Source = "https://github.com/Steven Pestana/flowperlink"
+Documentation = "https://code.usgs.gov/streamflow-permanence/flowperlink/"
+Issues = "https://code.usgs.gov/streamflow-permanence/flowperlink/-/issues"
+Source = "https://code.usgs.gov/streamflow-permanence/flowperlink/"
+Repository = "https://code.usgs.gov/streamflow-permanence/flowperlink.git"
 
 [build-system]
 requires = ["hatchling"]
@@ -62,3 +76,6 @@ exclude_lines = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["flowperlink"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
