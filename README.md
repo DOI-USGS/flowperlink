@@ -1,51 +1,98 @@
-# PROSPER Preprocessing
+# flowperlink
 
-## Summary
+![Generic badge](https://img.shields.io/badge/Version-0.0.1-<COLOR>.svg)
 
-This repository houses code for the downloading and preprocessing of FLOwPER (and other streamflow permanence) observation data for PROSPER (e.g. [Jaeger et al., 2018](https://www.sciencedirect.com/science/article/pii/S2589915518300051), [Sando et al., 2022](https://www.sciencedirect.com/science/article/pii/S2589915522000207)) model ingestion. The code includes the downloading, and automatic snapping of point observations to different hydrography datasets. The snapping process leverages and extends the functionality of [hydrolink](https://code.usgs.gov/sas/bioscience/hlt/hydrolink) for specific observation and hydrography datasets. 
+The flowperlink package extends the functionality of hydrolink by adding new features specific for linking FLOwPER (streamflow permanence) observation data to various hydrography datasets (e.g. NHDPlusHR, TerrainWorks), for ready ingestion of the observation data into the Probability of Streamflow Permanence (PROSPER) model ([Jaeger et al., 2019](https://doi.org/10.1016/j.hydroa.2018.100005)).
 
-## Handling FLOwPER data
+# Features
 
-The [download_flowper](./python_code/download_flowper.py) python script, designed to be run in the command line or through a wrapper [bash script](./python_code/flowperlinker.sh), is provided to download FLOwPER data from ScienceBase. The script parses user input specifying the download directory and optional input CSV file path, then executes the download process based on the provided parameters. The optional CSV file input argument allows users to specify which datasets to download through a CSV file containing ScienceBase data release IDs, otherwise a default list of FLOwPER data releases from 2019-2023 is downloaded ([FLOwPER Database](https://www.sciencebase.gov/catalog/item/5edea67582ce7e579c6e5845)). The `load_flowper_data` function reads this CSV file if provided, or returns the default list. The `download_flowper` function then establishes a session with ScienceBase using the `sciencebasepy` package ([Long et al., 2023](https://doi.org/10.5066/P9X4BIPR)), checks for the existence of a specified download directory (creating it if necessary), and iterates through the ScienceBase IDs to download relevant files (while filtering out photos and metadata). It also handles the extraction of the downloaded ZIP files. 
+* The `FlowperLink` class, derived from hydrolink's `CustomHydrography`, allows the snapping of FLOwPER point observations using tributary junction information and adjustable buffer distances to account for GPS accuracy and hydrography linework uncertainty.
+* The `TerrainWorksLink` class, for snapping FLOwPER and other streamflow permanence observations to high-resolution terrain-derived hydrography from TerrainWorks.
+* A preprocessing script, `preprocess_flowlines.py`, to derive tributary junction information from NHD hydrography datasets is included, to allow snapping FLOwPER points using the tributary junction fields in the observation data.
+* Other helper scripts: `download_flowper.py` for downloading FLOwPER data from ScienceBase via command line, and `merge_flowper.py` to merge multiple FLOwPER shapefiles into a single GeoDataFrame after downloading.
 
-The handling of FLOwPER datasets is continued with the [merge_flowper](./python_code/merge_flowper.py) script. Like the download script, it is designed to be run in the command line or through a wrapper [bash script](./python_code/flowperlinker.sh). The script merges multiple FLOwPER shapefiles into a single [geopandas](https://geopandas.org/en/stable/index.html) GeoDataFrame, and saved out to a single file. All input shapefiles are reprojected into a common coordinate reference system specified by the user.
+## Snapping with tributary junction informaiton
 
-Another observation dataset for the PROSPER models is the [Streamflow Observation Points in the Pacific Northwest, 1977-2016](https://www.sciencebase.gov/catalog/item/5a0f338de4b09af898d099b9).
+```python
+from flowperlink import FlowperLink 
 
-## Preprocessing flowlines
+nhdplushr = FlowperLink(points = 'FLOwPER_points.shp',   
+                  flowlines = 'NHDPLUS_H_1701_HU4_GPKG_preprocessed.gpkg', 
+                  source_identifier = 'GlobalID',  
+                  flowlines_identifier = ' Permanent_Identifier', 
+                  water_name = 'Strm_Nm_Sp',  
+                  flowline_name = 'GNIS_name', 
+                  buffer_m = 'AccuracyH', 
+                  buffer_multiplier = 10, 
+                  default_buffer = 100, 
+                  no_stream_name_min_buffer = 10, 
+                  yes_stream_name_min_buffer = 15, 
+                  max_buffer_distance = 100, 
+                  keep_points_attributes = ['TribJncTyp'], 
+                  keep_flowlines_attributes = ['mainstem_flag', 'trib_jcn']) 
 
-To snap FLOwPER observations to flowlines using their tributary junction information (described below), the flowlines within the hydrography dataset must have associated `mainstem_flag` and `trib_jcn` fields. A [preprocessing script](./python_code/preprocess_flowlines.py) was developed to derive this tributary junction information from [NHD](https://www.usgs.gov/national-hydrography/national-hydrography-dataset?qt-science_support_page_related_con=0#qt-science_support_page_related_con), [NHDPlusHR](https://www.usgs.gov/national-hydrography/nhdplus-high-resolution), and [NHDPlusV2](https://www.epa.gov/waterdata/nhdplus-national-hydrography-dataset-plus) datasets. The script, executable from a command line or as part of a separate [bash script](./python_code/preprocess_flowlines.sh), preprocesses flowline data by eliminating closed loops, splitting the flowlines at specific distances from junctions, and categorizing the flowlines as either upstream mainstem, downstream mainstem, or tributary based on the network's direction informaiton. 
+nhdplushr.hydrolink_method(method = 'name_match', 
+                     hydro_type = 'flowline',  
+                     trib_jcn = 'TribJncTyp',  
+                     outfile_name = 'nhdplushr_snapped_output.gpkg',  
+                     similarity_cutoff = 0.6) 
 
-The required information is pulled from the Flowline, Flow, and Value Added Attributes layers of each respective hydrography dataset. The script begins by removing divergences, and merging relevant attributes from the Flowline, Flow, and Value Added Attributes layers with the `clean_flowlines` function. The [NetworkX](https://networkx.org/) package is then used to convert the resulting GeoPandas GeoDataFrame into a [Directed Graph](https://networkx.org/documentation/stable/reference/classes/digraph.html) network. As a directed graph, the code can navigate the network upstream and downstream, and understands how each flowline connects to the rest of the network. 
+nhdplushr.write_connecting_lines(outfile_name='nhdplushr_snapped_connectors.gpkg') 
 
-To classify a flowline as a mainstem or a tributary, at each junction the total length of all lines in the upstream network is computed within the `compute_upstream_network_length` function. This method of identifying mainstems and tributaries assumes that total line length is proportional to drainage area, and that mainstems will have larger drainage areas than tributaries. Though not all hydrography datasets will have the same detail or resolution everywhere (e.g. NHD has 1:24k lines in some locations, and high resolution terrain derived 3DHP lines elsewhere), this method relies on adjacent basins lines having comparable detail or resolution.
+nhdplushr.buffered_points_gdf.to_file('nhdplushr_snapped_buffer_pts.gpkg') 
+```
 
-To label flowlines as near a junction, and upstream or downstream of that nearby junction, the `get_junction_flowlines` and `split_flowline` functions use a `trib_jcn_dist` parameter to split all flowlines a specified distance from each junction. This creates two or three sub-flowlines from every one original flowline. If the original flowline length is > 2*`trib_jcn_dist`, then it will be split into three sub-flowlines, two having lengths of `trib_jcn_dist`, and the third consisting of the remainder of the flowline The sub-flowlines are then labeled as upstream or downstream of a junction, or not near a junction, based on the flow information in the directed graph. Finally, the processed flowlines with these new attributes are saved to a new file ready for hydrolinking.
+## Snapping to TerrainWorks hydrography
 
-However, there still remains the problem of unmapped tributary junctions, where a main stem might be mapped in a hydrography dataset, but a small tributary is not. In these cases, the buffer distance (described below) will control whether or not the point is snapped to the mainstem, or not snapped at all (if far enough from the mainstem). Observations that are recorded as on a tributary, but there is no nearby tributary to snap to (or recorded as mainstem, but there is no nearby mainstem to snap to) are flagged with a processing message in their `trib_jnc_processing_message` field in the process described below.
+```python
+from terrainworkslink import TerrainWorksLink
 
+tw = TerrainWorksLink(points = 'FLOwPER_points.shp',   
+                      flowlines = 'Nodes_UpperDeschutes.gdb',  
+                      source_identifier='OBJECTID', 
+                      flowlines_identifier='NODE_ID',  
+                      water_name = None,  
+                      flowline_name = None, 
+                      buffer_m = 100, 
+                      buffer_multiplier = 1, 
+                      default_buffer = 100, 
+                      no_stream_name_min_buffer = 10, 
+                      yes_stream_name_min_buffer = 15, 
+                      max_buffer_distance = 100, 
+                      flowline_grid_offsets = (1, 1)) 
 
-## Snapping with tributary junction information
+tw.hydrolink_method(method = 'closest', 
+                    trib_jcn = None, 
+                    hydro_type = 'flowline',  
+                    outfile_name = 'tw_snapped_output.gpkg', 
+                    similarity_cutoff = 0.6) 
 
-A new class, [FlowperLink](./python_code/flowperlink.py), was developed as a child class to [CustomHydrography](https://code.usgs.gov/sas/bioscience/hlt/hydrolink) from hydrolink. This class for snapping FLOwPER, or similar, point observations extends the functionality of CustomHydrography to consider tributary junction information in the snapping process. The method `trib_jcn_match` compares tributary junction information within the point dataset against tributary junction information in the flowlines dataset. 
+tw.write_connecting_lines(outfile_name='tw_snapped_connectors.gpkg') 
 
-In FLOwPER records, the tributary junction type field, `TribJncTyp`, provides context about the location of the observation relative to the stream network. The possible values for this field are `On tributary`, `On mainstem upstream`, `On mainstem downstream`, and `No Data` (see the [FLOwPER User's Guide](https://pubs.usgs.gov/of/2020/1075/ofr20201075.pdf) or [FLOwPER Quick Guide 2.0](https://pubs.usgs.gov/of/2020/1075/ofr20201075_appendix01.pdf) for more information about FLOwPER data). Based on these values, the `trib_jcn_match` method of the FlowperLink class applies filtering logic to possible flowline matches within the search region to narrow down the number of possible matches. If the value of `TribJncTyp` for a FLOwPER point is `No Data`, all possible flowline matches remain eligible for snapping, and a processing message is recorded to indicate the lack of tributary junction information at this point. If an observation is `On tributary` then only flowlines with a corresponding `tributary` value in their `mainstem_flag` attribute are retained for the next steps of the snapping process. If an observation is `On mainstem downstream` or `On mainstem upstream` then only flowlines with `mainstem_flag` set as `mainstem` and `trib_jcn` set as `downstream of junction` or `upstream of junction`, respectively, are retained. If none of the previous conditions are met, all possible flowlines are retained and a processing message is recorded in the `trib_jnc_processing_message` field to indicate that matching using tributary junction information was attempted but was not successful.
+tw.buffered_points_gdf.to_file('tw_snapped_buffer_pts.gpkg') 
+```
 
-## Snapping with horizontal accuracy information
+## Preprocessing hydrography flowlines
 
-FLOwPER observations include a measure of the horizontal accuracy (RMSE) of the GPS location of the point. That information can be used to help guide where on a given hydrography dataset's linework to snap the point observation. The original hydrolink tool (  [Hydrolink 1.0](https://code.usgs.gov/sas/bioscience/hlt/hydrolink)) includes a buffer distance parameter to define the radius around a point of interest to search for candidate lines for snapping. The modified hydrolink tool ([Hydrolink 2.0 in dev](https://code.usgs.gov/spestana/hydrolink/-/tree/custom-hydrography?ref_type=heads), within the CustomHydrography module) can use a dynamic buffer, a different value for each point, read from a column in the point dataset (in which case `buffer_m` is set to the column name rather than a static buffer distance value). Where a point might be missing a value in this column, the code falls back on a `default_buffer` value which can be set to a static value or set to the mean value of the dataset. 
+The command below illustrates usage of the python script with an NHDPlusHR hydrography dataset, where tributary junction in formation is retrieved from the NHDFlowline, NHDPlusFlow, and NHDPlusFlowlineVAA layers of the geopackage file. In this example, a distance of 30 m is used to define the portion of flowlines near tributary junctions, and the output is written to a new geopackage file. 
 
-Other parameters allow for fine-tuning this buffer distance. The `buffer_multiplier` parameter can be used to multiply the values in column `buffer_m` by a constant value. The distribution of GPS horizontal accuracies resembles the larger-tailed t-distribution rather than a normal distribution. Using a buffer multiplier of 10 (e.g. 10 $\sigma$ if we take the RMSE to be equal to $\sigma$) is an approach that will help reduce false negatives (a point improperly identified as not belonging to any line) at the expense of increasing false positives (a point improperly identified as belonging to a line).  
+```bash
+python preprocess_flowlines.py 
+    --flowlines_filepath NHDPLUS_H_1701_HU4_GPKG.gpkg 
+    --flowline_layer NHDFlowline 
+    --flowlines_identifier Permanent_Identifier 
+    --flow_layer NHDPlusFlow 
+    --from_identifier FromPermID 
+    --to_identifier ToPermID  
 
-The RMSE, or even 10$\sigma$, may be too restrictive in cases where the RMSE is very small (e.g. << 1 m). There is not only uncertainty in the point location but also uncertainty in the hydrography linework (which varies by which hydrography dataset is used). Additionally, the PROSPER models using these observations are resolving a ~10 m spatial resolution (reach length, or grid cell size). Therefore, the linework uncertainty can be lumped with the point uncertainty by setting a lower limit on the search radius to about 10 m.
+    --flowlineVAA_layer NHDPlusFlowlineVAA 
+    --flowlinesVAA_identifier NHDPlusID 
+    --divergence_field Divergence 
+    --trib_jcn_dist 30 
+    --output_filepath NHDPLUS_H_1701_HU4_GPKG_preprocessed.gpkg 
+```
 
-The minimum allowable buffer distance can be set based on whether stream name information (for the "name_match" method) is present (`yes_stream_name_min_buffer`) or not (`no_stream_name_min_buffer`). The minimum buffer distance's dependence on stream name information allows for prioritizing the name matching method when a stream name has been recorded, over the horizontal accuracy of the point's GPS location, by setting `yes_stream_name_min_buffer` > `no_stream_name_min_buffer`. Finally, the `max_buffer_distance` parameter sets the maximum allowable buffer distance.
-
-
-
-
-
-## Hydrography datasets
+# Hydrography datasets
 
 Table based on [this](https://www.usgs.gov/news/which-nhd-product-do-you-need-and-which-do-you-have)
 
