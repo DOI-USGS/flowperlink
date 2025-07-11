@@ -98,7 +98,7 @@ The minimum allowable buffer distance can be set based on whether stream name in
 ### Example usage
 
 ```python
-from flowperlink import FlowperLink 
+from flowperlink.flowper import FlowperLink
 
 nhdplushr = FlowperLink(points = 'FLOwPER_points.shp',   
                   flowlines = 'NHDPLUS_H_1701_HU4_GPKG_preprocessed.gpkg', 
@@ -133,7 +133,7 @@ A separate module was developed to snap FLOwPER and other streamflow permanence 
 ### Example usage
 
 ```python
-from terrainworkslink import TerrainWorksLink
+from flowperlink.terrainworks import TerrainWorksLink
 
 tw = TerrainWorksLink(points = 'FLOwPER_points.shp',   
                       flowlines = 'Nodes_UpperDeschutes.gdb',  
