@@ -159,21 +159,3 @@ Test scripts can be ran using [pytest](https://docs.pytest.org/en/stable/). To r
 ```bash
 pytest
 ```
-
-# Hydrography datasets
-
-Table based on [this](https://www.usgs.gov/news/which-nhd-product-do-you-need-and-which-do-you-have)
-
-| | [NHD](https://www.usgs.gov/national-hydrography/national-hydrography-dataset?qt-science_support_page_related_con=0#qt-science_support_page_related_con) | [NHDPlus HR](https://www.usgs.gov/national-hydrography/nhdplus-high-resolution) | [NHDPlus V2](https://www.epa.gov/waterdata/nhdplus-national-hydrography-dataset-plus) | [NHDPlus V1](https://nhdplus.com/NHDPlus/NHDPlusV1_home.php) | [TerrainWorks](https://terrainworks.com/)
-| ------ | ------ | ------ | ------ | ------ | ------ |
-|    Currency    |     As of October 1, 2023, the NHD was retired. NHD data will continue to be available, but no longer maintained.    |    Based on snapshot of 1:24K NHD from 2015-2019 timeframe (differs by area)    |   Based on snapshot of 1:100K NHD from 2011 timeframe     |   NHDPlusV1 is replaced in its entirety by NHDPlusV2     |   |
-|   Level of Detail     |    1:24K or more detailed (1:63,360 or more detailed in AK)    |    1:24K or more detailed    |    1:100K (more detailed for HI, U.S. Virgin Islands, Puerto Rico, and Pacific Island territories)    |    1:100K  | 2 m |
-|   Geography     |    CONUS, AK, HI, Puerto Rico, U.S. Virgin Islands, and several Pacific Island territories    |   CONUS, HI, Puerto Rico, U.S. Virgin Islands, and several Pacific Island territories; in development in AK     |    CONUS, HI, Puerto Rico, U.S. Virgin Islands, and several Pacific Island territories; not available in AK    |        | parts of Oregon |
-|   Additional Attributes     |    None    |   Value-Added Attributes, Mean Annual Flow Estimates     |    Value-Added Attributes, Mean Annual and Mean Monthly Flow Estimates    |        |     | 
-|    Additional Features    |   None     |   Elevation-derived catchment areas based on 1:24K NHD and 10 meter DEM      |  Elevation-derived catchment areas based on 1:100K NHD and 30 meter DEM      |        |    |
-|    Link    |    [download by HUC](https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHD/)    |   [download by HUC](https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHDPlusHR/)     |    [download by HUC](https://www.epa.gov/waterdata/get-nhdplus-national-hydrography-dataset-plus-data#Download)    |        |    |
-|    Formats    |    GDB, GPKG, SHP    |    GDB, GPKG, Raster    |    GDB, SHP, Raster     |        |    |
-|    [Hydrolink 1.0](https://code.usgs.gov/sas/bioscience/hlt/hydrolink)    |   "NHD HR" [MapServer](https://hydromaintenance.nationalmap.gov/arcgis/rest/services/HEM/NHDHigh/MapServer)     |   -    |   "NHD MR" [MapServer](https://watersgeo.epa.gov/arcgis/rest/services/NHDPlus/NHDPlus/MapServer)      |        |  n/a  |
-|    [Hydrolink 2.0 in dev](https://code.usgs.gov/spestana/hydrolink/-/tree/custom-hydrography?ref_type=heads)  |   [download](https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHD/) to use CustomHydrography module  |   [download](https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/Hydrography/NHDPlusHR/) to use CustomHydrography module     |    [download](https://www.epa.gov/waterdata/get-nhdplus-national-hydrography-dataset-plus-data#Download) to use CustomHydrography module    |        |  n/a  |
-|    ["FLOwPERlink"](#)    |        |        |        |        |  use ["TerrainWorksLink"](#)  |
-|       |        |        |        |        |
