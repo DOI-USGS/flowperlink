@@ -14,7 +14,7 @@ The flowperlink package extends the functionality of hydrolink by adding new fea
 ## Snapping with tributary junction informaiton
 
 ```python
-from flowperlink import FlowperLink 
+from flowperlink.flowper import FlowperLink
 
 nhdplushr = FlowperLink(points = 'FLOwPER_points.shp',   
                   flowlines = 'NHDPLUS_H_1701_HU4_GPKG_preprocessed.gpkg', 
@@ -45,7 +45,7 @@ nhdplushr.buffered_points_gdf.to_file('nhdplushr_snapped_buffer_pts.gpkg')
 ## Snapping to TerrainWorks hydrography
 
 ```python
-from terrainworkslink import TerrainWorksLink
+from flowperlink.terrainworks import TerrainWorksLink
 
 tw = TerrainWorksLink(points = 'FLOwPER_points.shp',   
                       flowlines = 'Nodes_UpperDeschutes.gdb',  
