@@ -59,14 +59,30 @@ pip install -e .
 
 The commands below illustrate usage of the `download_flowper.py` and `merge_flowper.py` scripts to access FLOwPER observations from ScienceBase and prepare them for linking to hydrography datasets.
 
+Download a default list of FLOwPER observations from ScienceBase:
+
 ```bash
-# Download FLOwPER shapefiles
 python download_flowper.py --download_directory D:/FLOwPER_data/downloads/
 ```
 
+Or, download from a custom list of ScienceBase datasets in a csv file:
+
+```bash
+python download_flowper.py 
+    --download_directory D:/FLOwPER_data/downloads/ 
+    --input_filepath flowper_records.csv 
+    --name_col dataset_name 
+    --id_col sciencebase_ID
+```
+
+Merge the downloaded datasets into one shapefile:
+
 ```bash
 # Merge FLOwPER shapefiles that have been downloaded
-python merge_flowper.py --input_directory D:/FLOwPER_data/downloads/ --output_filepath D:/FLOwPER_data/FLOwPER_merged.shp --crs 4326
+python merge_flowper.py 
+    --input_directory D:/FLOwPER_data/downloads/ 
+    --output_filepath D:/FLOwPER_data/FLOwPER_merged.shp 
+    --crs 4326
 ```
 
 
