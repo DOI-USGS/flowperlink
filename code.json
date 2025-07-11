@@ -11,14 +11,14 @@
         "licenses": [
           {
             "name": "unlicense",
-            "URL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/raw/main/LICENSE.md"
+            "URL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/raw/1.0.0/LICENSE.md"
           }
         ]
       },
   
       "homepageURL": "https://code.usgs.gov/streamflow-permanence/flowperlink",
-      "downloadURL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/archive/main/flowperlink-main.zip",
-      "disclaimerURL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/raw/main/DISCLAIMER.md",
+      "downloadURL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/archive/1.0.0/flowperlink-1.0.0.zip",
+      "disclaimerURL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/raw/1.0.0/DISCLAIMER.md",
       "repositoryURL": "https://code.usgs.gov/streamflow-permanence/flowperlink.git",
       "vcs": "git",
   
