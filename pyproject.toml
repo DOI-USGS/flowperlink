@@ -1,7 +1,7 @@
 [project]
-name = "Extends the functionality of hydrolink for snapping FLOwPER (streamflow permanence) observation data to various hydrography datasets."
+name = 'flowperlink'
 dynamic = ["version"]
-description = 'flowperlink'
+description = 'Extends the functionality of hydrolink for snapping FLOwPER (streamflow permanence) observation data to various hydrography datasets'
 readme = "README.md"
 requires-python = ">=3.9"
 license = "unlicense"

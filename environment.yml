@@ -5,5 +5,4 @@ dependencies:
   - python=3.9
   - requests
   - geopandas
-  - hydrolink
   - sciencebasepy
