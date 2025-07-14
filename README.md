@@ -69,13 +69,13 @@ The commands below illustrate usage of the `download_flowper.py` and `merge_flow
 Download a default list of FLOwPER observations from ScienceBase:
 
 ```bash
-python download_flowper.py --download_directory D:/FLOwPER_data/downloads/
+python -m flowperlink.download_flowper --download_directory D:/FLOwPER_data/downloads/
 ```
 
 Or, download from a custom list of ScienceBase datasets in a csv file:
 
 ```bash
-python download_flowper.py 
+python -m flowperlink.download_flowper
     --download_directory D:/FLOwPER_data/downloads/ 
     --input_filepath flowper_records.csv 
     --name_col dataset_name 
@@ -86,7 +86,7 @@ Merge the downloaded datasets into one shapefile:
 
 ```bash
 # Merge FLOwPER shapefiles that have been downloaded
-python merge_flowper.py 
+python -m flowperlink.merge_flowper
     --input_directory D:/FLOwPER_data/downloads/ 
     --output_filepath D:/FLOwPER_data/FLOwPER_merged.shp 
     --crs 4326
@@ -98,7 +98,7 @@ python merge_flowper.py
 The command below illustrates usage of the `preprocess_flowlines.py` script with an NHDPlusHR hydrography dataset, where tributary junction in formation is retrieved from the NHDFlowline, NHDPlusFlow, and NHDPlusFlowlineVAA layers of the geopackage file. In this example, a distance of 30 m is used to define the portion of flowlines near tributary junctions, and the output is written to a new geopackage file. 
 
 ```bash
-python preprocess_flowlines.py 
+python -m flowperlink.preprocess_flowlines
     --flowlines_filepath NHDPLUS_H_1701_HU4_GPKG.gpkg 
     --flowline_layer NHDFlowline 
     --flowlines_identifier Permanent_Identifier 
