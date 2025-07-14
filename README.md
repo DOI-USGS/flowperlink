@@ -39,7 +39,7 @@ To install a different branch of flowperlink, such as a development branch:
 pip install git+https://code.usgs.gov/streamflow-permanence/flowperlink.git@branch_name
 ```
 
-The flowperlink package can also be installed from the source code directly. This may be of interest if you are developing new features for the package.
+The flowperlink package can also be installed from the source code directly. This may be of interest if you are developing new features for the package. Hydrolink must be installed separately in this case.
 
 ```bash
 # clone the repository to get the source code
@@ -50,6 +50,13 @@ cd flowperlink
 conda env create -f environment.yml
 # activate the new environment
 conda activate flowperenv
+# clone and install hydrolink (must be version 2.0 or above)
+cd ..
+git clone https://code.usgs.gov/sas/bioscience/hlt/hydrolink.git
+cd hydrolink
+pip install -e .
+# navigate back to flowperlink
+cd ../flowperlink
 # install flowperlink
 pip install -e .
 ```
