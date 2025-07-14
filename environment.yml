@@ -2,7 +2,7 @@ name: flowperenv
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
+  - python>=3.9
   - requests
-  - geopandas
+  - geopandas>=0.14.4
   - sciencebasepy
