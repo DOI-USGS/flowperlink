@@ -97,7 +97,8 @@ class TerrainWorksLink():
         # column name in the points dataset with a unique ID for each point
         self.source_id = str(source_identifier)
         # column name in the points dataset with a unique ID for each flowline
-        self.flowlines_identifier = str(flowlines_identifier)
+        if flowlines_identifier is not None:
+            self.flowlines_identifier = str(flowlines_identifier)
 
         # read in points and flowlines to geodataframes
         print('Reading input points...')
@@ -107,6 +108,9 @@ class TerrainWorksLink():
         print('Reading input flowlines...')
         self.flowlines = flowlines # used later to write a new flowlines file
         self.flowlines_gdf = utils.input_to_gdf(self.flowlines).drop_duplicates()
+        if flowlines_identifier is None:
+            self.flowlines_gdf['NODE_ID'] = self.flowlines_gdf.index
+            self.flowlines_identifier = 'NODE_ID'
 
         # water name should be the name of a column name in points that contains the stream name
         self.water_name = str(water_name)
