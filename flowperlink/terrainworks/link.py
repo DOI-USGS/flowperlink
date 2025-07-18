@@ -549,7 +549,7 @@ class TerrainWorksLink():
         if len(self.hydrolinked_gdf) == 0:
             print("No connecting lines to output. Check that there are points actually near this hydrography data.")
         else:
-            line_gdf = self.hydrolinked_gdf.apply(lambda row: LineString([Point(row['source lon nad83'], row['source lat nad83']), Point(row['snap lon nad83'], row['snap lat nad83'])]), axis=1)
+            line_gdf = self.hydrolinked_gdf.apply(lambda row: LineString([Point(row['source lon nad83'], row['source lat nad83']), Point(row['snap lon nad83'], row['snap lat nad83'])]), axis=1).set_crs(4269)
             line_gdf.to_file(outfile_name)
 
 
