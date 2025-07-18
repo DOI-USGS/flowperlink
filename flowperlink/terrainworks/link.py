@@ -23,7 +23,7 @@ class TerrainWorksLink():
                  flowlines_identifier: str,
                  water_name: str,
                  flowline_name: str,
-                 input_crs: Union[int, str] = 4269,
+                 use_crs: Union[Literal["points"],Literal["flowlines"],int, str] = "flowlines",
                  buffer_m: Union[str, float] = 1000,
                  buffer_multiplier: float = 1,
                  default_buffer: Union[Literal["mean"], int, float] = 100,
@@ -60,8 +60,10 @@ class TerrainWorksLink():
         flowline_name: str
             Field or column name within hydrography dataset containing a waterbody name for each flowline,
             required for name_match method. Optional
-        input_crs: str, int
-            Currently not used (see Notes). Specify coordinate reference system, default is 4269
+        use_crs: 'points', 'flowlines', str, int
+            Specify coordinate reference system to use. To use CRS of input points data, set this to 'points'.
+            To use CRS of input flowlines data, set this to 'flowlines'. Or provide a string or int specifying
+            the CRS to use. Default behavior is to use 'flowlines'.
         buffer_m: str, int, float
             If a number is provided, distance in meters used as buffer to search for candidate flowline
             features to use for hydrolinking, default is 1000, max is 2000. If a string is provided, field
@@ -80,7 +82,7 @@ class TerrainWorksLink():
         ----------
         Coordinate reference system recommendations
             Ideally we would use NAD83 (CRS 4269), WGS84 (CRS 4326), Albers (CRS 5070) like the rest of
-            hydrolink. Currently using EPSG 4269. Though there is an input_crs parameter, this parameter
+            hydrolink. Currently using EPSG 4269. Though there is an use_crs parameter, this parameter
             is not being used. Internally, whatever CRS the input points and input flowlines are in,
             they are both reprojected to a common UTM CRS based on the location of the points dataset.
             The hydrolinked results are then reprojected into EPSG 4269 before saving the output file.
@@ -99,10 +101,11 @@ class TerrainWorksLink():
         # column name in the points dataset with a unique ID for each flowline
         if flowlines_identifier is not None:
             self.flowlines_identifier = str(flowlines_identifier)
+        # user input CRS option
+        self.use_crs = use_crs
 
         # read in points and flowlines to geodataframes
         print('Reading input points...')
-        self.input_crs = input_crs
         self.points = points # used later to write a new points file
         self.points_gdf = utils.input_to_gdf(self.points).drop_duplicates()
         print('Reading input flowlines...')
@@ -137,20 +140,35 @@ class TerrainWorksLink():
             self.error_handling()
         # if buffer is a string, this is the column that contains a dynamic buffer value (to also be multiplied by buffer_multiplier)
 
-
-        # Try converting to NAD83 (crs==4269) ? 3857 coordinate system if different coordinate system provided
-        # If fails do not run and set error message
-        self.utm_crs = self.points_gdf.estimate_utm_crs()
+        # select CRS to use
+        if self.use_crs == 'points':
+            # make sure the points data are using a UTM CRS
+            if self.points_gdf.crs.utm_zone is None:
+                self.utm_crs = self.points_gdf.estimate_utm_crs()
+                print(f'CRS set to {self.utm_crs} estimated from points CRS {self.points_gdf.crs}')
+            else:
+                self.utm_crs = self.points_gdf.crs
+                print(f'CRS set to {self.points_gdf.crs} from points')
+        elif self.use_crs == 'flowlines':
+            # make sure the flowlines data are using a UTM CRS
+            if self.flowlines_gdf.crs.utm_zone is None:
+                self.utm_crs = self.flowlines_gdf.estimate_utm_crs()
+                print(f'CRS set to {self.utm_crs} estimated from flowlines CRS {self.flowlines_gdf.crs}')
+            else:
+                self.utm_crs = self.flowlines_gdf.crs
+                print(f'CRS set to {self.flowlines_gdf.crs} from flowlines')
+        else:
+            self.utm_crs = self.use_crs
+            
+        # Try converting to a common UTM CRS
+        # If this fails, stop and and set error message for user
+        print(f'Points were provided in {self.points_gdf.crs}')
+        print(f'Flowlines were provided in {self.flowlines_gdf.crs}')
         print(f'Reproject points and flowlines to common UTM CRS: {self.utm_crs} ...')
+
         try:
             self.points_gdf.to_crs(self.utm_crs, inplace=True)
             self.flowlines_gdf.to_crs(self.utm_crs, inplace=True)
-            # if self.points_gdf.crs != self.input_crs:
-            #     self.points_gdf.to_crs(self.input_crs, inplace=True)
-            # if self.flowlines_gdf.crs != self.input_crs:
-            #     self.flowlines_gdf.to_crs(self.input_crs, inplace=True)
-
-
             # Test to make sure coordinates are within U.S. including Puerto Rico and Virgin Islands.
             # This is based on a general bounding box and intended to pick up common issues like missing values, 0 values and positive lon values
             # if (float(self.init_lat) > 17.5 and float(self.init_lat) < 71.5) and (float(self.init_lon) < -64.0 and float(self.init_lon) > -178.5):
@@ -160,9 +178,8 @@ class TerrainWorksLink():
             #     self.error_handling()
 
             # check if any points lie outside the bounds of the input hydrography and alert the user?
-
         except:
-            self.message = f'Issues handling provided coordinate system or coordinates for {self.source_id}. Consider using a common crs like 4269 (NAD83) or 4326 (WGS84).'
+            self.message = f'Issues handling provided coordinate system or coordinates. Unable to reproject points and/or flowlines into {self.utm_crs}'
             self.error_handling()
         print('Ready to hydrolink.')
 
@@ -510,7 +527,7 @@ class TerrainWorksLink():
             self.hydrolinked_gdf['snap lon nad83'] = snap_points_nad83.x
 
             # before saving, drop the geometries of the original input point, and the matched flowline
-            self.hydrolinked_gdf.drop(columns=['geometry_point']).set_geometry('geometry').to_crs(4269).to_file(outfile_name)
+            self.hydrolinked_gdf.drop(columns=['geometry_point']).set_geometry('geometry').to_file(outfile_name)
 
     def write_connecting_lines(self, outfile_name='custom_hydrolink_connectors.gpkg'):
         """Create connecting lines and write to file.
@@ -533,7 +550,7 @@ class TerrainWorksLink():
             print("No connecting lines to output. Check that there are points actually near this hydrography data.")
         else:
             line_gdf = self.hydrolinked_gdf.apply(lambda row: LineString([Point(row['source lon nad83'], row['source lat nad83']), Point(row['snap lon nad83'], row['snap lat nad83'])]), axis=1)
-            line_gdf.set_crs(4269).to_file(outfile_name)
+            line_gdf.to_file(outfile_name)
 
 
     def error_handling(self):
