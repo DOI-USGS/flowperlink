@@ -1,0 +1,55 @@
+[
+    {
+      "name": "flowperlink",
+      "organization": "U.S. Geological Survey",
+      "description": "Python package with methods and command line tools to link flow permanence (FLOwPER) observations to hydrography datasets.",
+      "version": "1.0.0",
+      "status": "Release Candidate",
+  
+      "permissions": {
+        "usageType": "openSource",
+        "licenses": [
+          {
+            "name": "unlicense",
+            "URL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/raw/1.0.0/LICENSE.md"
+          }
+        ]
+      },
+  
+      "homepageURL": "https://code.usgs.gov/streamflow-permanence/flowperlink",
+      "downloadURL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/archive/1.0.0/flowperlink-1.0.0.zip",
+      "disclaimerURL": "https://code.usgs.gov/streamflow-permanence/flowperlink/-/raw/1.0.0/DISCLAIMER.md",
+      "repositoryURL": "https://code.usgs.gov/streamflow-permanence/flowperlink.git",
+      "vcs": "git",
+  
+      "laborHours": 0,
+  
+      "tags": [
+        "Python",
+        "USGS",
+        "hydrology",
+        "hydrography",
+        "streamflow permanence",
+        "FLOwPER",
+        "PROSPER",
+        "hydrolink",
+        "stream network",
+        "doi|XXXXX",
+        "ipds|XXXXX"
+      ],
+  
+      "languages": [
+        "Python"
+      ],
+  
+      "contact": {
+        "name": "Steven Pestana",
+        "email": "spestana@usgs.gov"
+      },
+  
+      "date": {
+        "metadataLastUpdated": "2025-07-21"
+      }
+    }
+  ]
+  
