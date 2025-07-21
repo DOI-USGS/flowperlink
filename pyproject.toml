@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = "unlicense"
 license-files = ["LICENSE.md", "AUTHORS.rst", "DISCLAIMER.md", "CODE_OF_CONDUCT.md"]
-keywords = ["FLOwPER", "hydrolink", "streamflow permanence", "PROSPER", "hydrology"]
+keywords = ["FLOwPER", "hydrolink", "streamflow permanence", "PROSPER", "hydrology", "hydrography"]
 authors = [
   { name = "Steven Pestana", email = "spestana@usgs.gov" },
   { name = "Laura Labriola", email = "llabriola@usgs.gov" },

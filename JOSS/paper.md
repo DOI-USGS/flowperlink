@@ -14,23 +14,32 @@ authors:
   - name: Laura Labriola
     orcid: 0000-0002-5096-2940
     affiliation: 2
-  - name: Author 3
-    orcid: 0000-0000-0000-0000
+  - name: Nathan Chelgren
+    orcid: 0000-0003-0944-9165
     affiliation: 3
-  - name: Author 4
-    orcid: 0000-0000-0000-0000
+  - name: Emily Heaston
+    orcid: 0000-0002-3949-391X
+    affiliation: 3
+  - name: Kristin Jaeger
+    orcid: 0000-0002-1209-8506
+    affiliation: 1
+  - name: Roy Sando
+    orcid: 0000-0003-0704-6258
+    affiliation: 4
+  - name: Patrick Wurster
+    orcid: 0000-0003-2668-2014
     affiliation: 4
 affiliations:
   - name: U.S. Geological Survey, Washington Water Science Center, Tacoma, WA
     index : 1
-  - name: U.S. Geological Survey, Oklahoma-Texas Water Science Center, Tacoma, WA
+  - name: U.S. Geological Survey, Oklahoma-Texas Water Science Center, Oklahoma City, OK
     index: 2
-  - name: Affiliation 3
+  - name: U.S. Geological Survey, Forest and Rangeland Ecosystem Science Center, Corvallis, OR
     index: 3
-  - name: Affiliation 4
+  - name: U.S. Geological Survey, Wyoming-Montana Water Science Center, Helena, MT
     index: 2
 
-date: 10 July 2025
+date: 21 July 2025
 bibliography: paper.bib
 ---
 

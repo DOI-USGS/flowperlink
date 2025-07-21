@@ -27,8 +27,12 @@
       "tags": [
         "Python",
         "USGS",
-        "usgs_ma:Core Science Systems",
-        "usgs_sc:Science Analytics and Synthesis",
+        "hydrology",
+        "hydrography",
+        "streamflow permanence",
+        "FLOwPER",
+        "PROSPER",
+        "hydrolink",
         "stream network",
         "doi|XXXXX",
         "ipds|XXXXX"
@@ -44,7 +48,7 @@
       },
   
       "date": {
-        "metadataLastUpdated": "2025-07-11"
+        "metadataLastUpdated": "2025-07-21"
       }
     }
   ]
