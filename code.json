@@ -35,7 +35,7 @@
         "hydrolink",
         "stream network",
         "doi|XXXXX",
-        "ipds|XXXXX"
+        "ipds|181392"
       ],
   
       "languages": [
@@ -48,7 +48,7 @@
       },
   
       "date": {
-        "metadataLastUpdated": "2025-07-21"
+        "metadataLastUpdated": "2025-07-25"
       }
     }
   ]
