@@ -29,7 +29,7 @@ def test_initialization(sample_data):
     test_tw = TerrainWorksLink(
         points=points_gdf,
         flowlines=flowlines_gdf,
-        source_identifier='id',
+        points_identifier='id',
         flowlines_identifier='flow_id',
         water_name='stream_name',
         flowline_name='flowline_name'
@@ -41,7 +41,7 @@ def test_buffer_points_fixed(sample_data):
     test_tw = TerrainWorksLink(
         points=points_gdf,
         flowlines=flowlines_gdf,
-        source_identifier='id',
+        points_identifier='id',
         flowlines_identifier='flow_id',
         water_name='stream_name',
         flowline_name='flowline_name',
@@ -57,7 +57,7 @@ def test_buffer_points_dynamic(sample_data):
     test_tw = TerrainWorksLink(
         points=points_gdf,
         flowlines=flowlines_gdf,
-        source_identifier='id',
+        points_identifier='id',
         flowlines_identifier='flow_id',
         water_name='stream_name',
         flowline_name='flowline_name',
@@ -72,7 +72,7 @@ def test_intersect_points_flowlines(sample_data):
     test_tw = TerrainWorksLink(
         points=points_gdf,
         flowlines=flowlines_gdf,
-        source_identifier='id',
+        points_identifier='id',
         flowlines_identifier='flow_id',
         water_name='stream_name',
         flowline_name='flowline_name',
@@ -91,7 +91,7 @@ def test_select_closest_flowline(sample_data):
     test_tw = TerrainWorksLink(
         points=points_gdf,
         flowlines=flowlines_gdf,
-        source_identifier='id',
+        points_identifier='id',
         flowlines_identifier='flow_id',
         water_name='stream_name',
         flowline_name='flowline_name',
@@ -111,7 +111,7 @@ def test_error_handling(sample_data):
     test_tw = TerrainWorksLink(
         points=points_gdf,
         flowlines=flowlines_gdf,
-        source_identifier='id',
+        points_identifier='id',
         flowlines_identifier='flow_id',
         water_name='stream_name',
         flowline_name='flowline_name'
