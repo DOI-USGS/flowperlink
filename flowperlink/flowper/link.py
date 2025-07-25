@@ -133,7 +133,7 @@ class FlowperLink(CustomHydrography):
         Parameters
         ----------
         self : object
-            The instance of the class containing the `hydrolinked_gdf` GeoDataFrame and the `source_id`
+            The instance of the class containing the `hydrolinked_gdf` GeoDataFrame and the `points_id`
             attribute.
 
         Returns
@@ -154,9 +154,9 @@ class FlowperLink(CustomHydrography):
         # create a field to store trib junction info processing messages per point
         self.hydrolinked_gdf['trib_jnc_processing_message'] = ''
 
-        for global_id in self.hydrolinked_gdf[self.source_id].unique():
+        for global_id in self.hydrolinked_gdf[self.points_id].unique():
             # gdf points directly to this filtered self.hydrolinked_gdf, it is not a copy, this is just for ease of typing
-            gdf = self.hydrolinked_gdf[self.hydrolinked_gdf[self.source_id] == global_id]
+            gdf = self.hydrolinked_gdf[self.hydrolinked_gdf[self.points_id] == global_id]
             # count number of flowlines we could potentially snap to (this is just the number of rows for each global_id)
             num_flowlines = len(gdf)
 
@@ -192,7 +192,7 @@ class FlowperLink(CustomHydrography):
                 num_drops = len(drop_indices)
                 if num_flowlines - num_drops > 0:
                     # only if this won't drop all rows here, proceed with tributary junction matching
-                    # and drop rows for this unique self.source_id
+                    # and drop rows for this unique self.points_id
                     #print(f'dropping {num_drops} of {num_flowlines} rows')
                     self.hydrolinked_gdf.drop(index=drop_indices, inplace=True)
                 if (num_flowlines - num_drops <= 0):
@@ -203,7 +203,7 @@ class FlowperLink(CustomHydrography):
                     trib_jnc_processing_message = 'Tributary junction matching did not find any matching flowlines. Flowline matching will be skipped for this point.'
 
             # apply the processing message
-            self.hydrolinked_gdf.loc[self.hydrolinked_gdf[self.source_id] == global_id, 'trib_jnc_processing_message'] = trib_jnc_processing_message
+            self.hydrolinked_gdf.loc[self.hydrolinked_gdf[self.points_id] == global_id, 'trib_jnc_processing_message'] = trib_jnc_processing_message
 
                 # In some cases there were no flowlines in the buffer region to begin with
                 # Therefore, don't drop any flowlines and log a message

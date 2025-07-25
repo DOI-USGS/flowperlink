@@ -19,14 +19,14 @@ class TerrainWorksLink():
     def __init__(self,
                  points: Union[str, Path, gpd.GeoDataFrame],
                  flowlines: Union[str, Path, gpd.GeoDataFrame],
-                 source_identifier: str,
+                 points_identifier: str,
                  flowlines_identifier: str,
                  water_name: str,
                  flowline_name: str,
                  use_crs: Union[Literal["points"],Literal["flowlines"],int, str] = "flowlines",
                  buffer_m: Union[str, float] = 1000,
                  buffer_multiplier: float = 1,
-                 default_buffer: Union[Literal["mean"], int, float] = 100,
+                 replace_nodata_buffer_with: Union[Literal["mean"], int, float] = 100,
                  no_stream_name_min_buffer: float = 10,
                  yes_stream_name_min_buffer: float = 15,
                  max_buffer_distance: float = 100,
@@ -49,7 +49,7 @@ class TerrainWorksLink():
             Path to a file, or a geopandas geodataframe containing points to hydrolink
         flowlines: str, Path, gpd.GeoDataFrame
             Path to a file, or a geopandas geodataframe containing the TerrainWorks flowline points
-        source_identifier: str
+        points_identifier: str
             Field or column name within points dataset containing a unique identifier for each point of
             interest
         flowlines_identifier: str
@@ -97,7 +97,7 @@ class TerrainWorksLink():
         """
 
         # column name in the points dataset with a unique ID for each point
-        self.source_id = str(source_identifier)
+        self.points_id = str(points_identifier)
         # column name in the points dataset with a unique ID for each flowline
         if flowlines_identifier is not None:
             self.flowlines_identifier = str(flowlines_identifier)
@@ -122,7 +122,7 @@ class TerrainWorksLink():
         # get options for setting up buffer (search radius) around each point
         self.buffer_m = buffer_m
         self.buffer_multiplier = buffer_multiplier
-        self.default_buffer = default_buffer
+        self.replace_nodata_buffer_with = replace_nodata_buffer_with
         self.no_stream_name_min_buffer = no_stream_name_min_buffer
         self.yes_stream_name_min_buffer = yes_stream_name_min_buffer
         self.max_buffer_distance = max_buffer_distance
@@ -174,7 +174,7 @@ class TerrainWorksLink():
             # if (float(self.init_lat) > 17.5 and float(self.init_lat) < 71.5) and (float(self.init_lon) < -64.0 and float(self.init_lon) > -178.5):
             #     pass
             # else:
-            #     self.message = f'Coordinates for id: {self.source_id} are outside of the bounding box of the United States.'
+            #     self.message = f'Coordinates for id: {self.points_id} are outside of the bounding box of the United States.'
             #     self.error_handling()
 
             # check if any points lie outside the bounds of the input hydrography and alert the user?
@@ -293,7 +293,7 @@ class TerrainWorksLink():
             dataset containing a buffer distance unique to each point.
         buffer_multiplier: float
             Constant value to multiply the value in buffer_m by, default is 1.
-        default_buffer: "mean", float
+        replace_nodata_buffer_with: "mean", float
             Choose what to do with points with nodata in column buffer_m. Either set to "mean" to use the
             mean value in column buffer_m * buffer_multiplier, or set to a fixed value (float),
             defaults to 1000 m
@@ -329,12 +329,12 @@ class TerrainWorksLink():
             # start off with a copy of the values in buffer_m for buffer distances
             self.buffered_points_gdf['buffer_distance'] = self.buffered_points_gdf[self.buffer_m].copy() * self.buffer_multiplier
             # replace nans in column buffer_distance
-            if self.default_buffer == "mean":
+            if self.replace_nodata_buffer_with == "mean":
                 # replace any nans with the mean value in column buffer_distance, which is = buffer_m * buffer_multiplier
                 self.buffered_points_gdf.fillna({'buffer_distance': self.buffered_points_gdf['buffer_distance'].mean()}, inplace=True)
             else:
                 # replace any nans with a default value
-                self.buffered_points_gdf.fillna({'buffer_distance': self.default_buffer}, inplace=True)
+                self.buffered_points_gdf.fillna({'buffer_distance': self.replace_nodata_buffer_with}, inplace=True)
 
             if self.water_name == None:
                 # if no stream name information is to be used, use the no_stream_name_min_buffer for all points
@@ -361,7 +361,7 @@ class TerrainWorksLink():
 
 
 
-    def intersect_points_flowlines(self): #buffered_points_gdf, flowlines_gdf, flowlines_identifier, points_gdf, source_id):
+    def intersect_points_flowlines(self): #buffered_points_gdf, flowlines_gdf, flowlines_identifier, points_gdf, points_id):
         """Finds all flowlines that intersect with the search (buffered) region around each point.
 
         Description
@@ -413,8 +413,8 @@ class TerrainWorksLink():
 
         # add the point geometry for reference
         geometry_point_gdf = self.points_gdf.rename(columns={'geometry': 'geometry_point'})
-        self.hydrolinked_gdf = self.hydrolinked_gdf.merge(geometry_point_gdf[[self.source_id, 'geometry_point']],
-                                                            on=self.source_id,
+        self.hydrolinked_gdf = self.hydrolinked_gdf.merge(geometry_point_gdf[[self.points_id, 'geometry_point']],
+                                                            on=self.points_id,
                                                             suffixes=('', '_point'),
                                                             how='left')
 
@@ -434,7 +434,7 @@ class TerrainWorksLink():
         self.hydrolinked_gdf: gpd.GeoDataFrame
             A geopandas GeoDataFrame containing the flowlines within the search region of each point of interest.
             Now also containing the nearest points, distances, and name similarity scores.
-        self.source_id: str
+        self.points_id: str
             Field or column name within points dataset containing a unique identifier for each point of interest.
 
         Returns
@@ -446,13 +446,13 @@ class TerrainWorksLink():
         """
         self.hydrolinked_gdf.drop_duplicates(inplace=True)
         # count number of flowlines in search buffer region (this is just the number of rows for each global_id)
-        self.hydrolinked_gdf['num_flowlines'] = self.hydrolinked_gdf.groupby(self.source_id)[self.source_id].transform('count')
+        self.hydrolinked_gdf['num_flowlines'] = self.hydrolinked_gdf.groupby(self.points_id)[self.points_id].transform('count')
         # create a field to store processing messages per point
         self.hydrolinked_gdf['processing_message'] = ''
 
-        for global_id in self.hydrolinked_gdf[self.source_id].unique():
+        for global_id in self.hydrolinked_gdf[self.points_id].unique():
             # gdf points directly to this filtered self.hydrolinked_gdf, it is not a copy, this is just for ease of typing
-            gdf = self.hydrolinked_gdf[self.hydrolinked_gdf[self.source_id] == global_id]
+            gdf = self.hydrolinked_gdf[self.hydrolinked_gdf[self.points_id] == global_id]
             # count number of flowlines in search buffer region (this is just the number of rows for each global_id)
             num_flowlines = len(gdf)
             # drop rows that are not the minimum distance
@@ -463,13 +463,13 @@ class TerrainWorksLink():
             drop_indices = gdf.loc[drop_conditions].index
             num_drops = len(drop_indices)
 
-            # check that we are dropping all but 1 row for this unique self.source_id
+            # check that we are dropping all but 1 row for this unique self.points_id
             if ( num_flowlines - num_drops ) > 1 :
                 # proceed for now, but provide a warning
                 print(f"WARNING: Multiple flowlines met hydrolinking conditions for id: {global_id}")
-                self.hydrolinked_gdf.loc[self.hydrolinked_gdf[self.source_id] == global_id, 'processing_message'] = [f"WARNING: Multiple flowlines met hydrolinking conditions for id: {global_id}"] * num_flowlines
+                self.hydrolinked_gdf.loc[self.hydrolinked_gdf[self.points_id] == global_id, 'processing_message'] = [f"WARNING: Multiple flowlines met hydrolinking conditions for id: {global_id}"] * num_flowlines
 
-            # drop rows for this unique self.source_id
+            # drop rows for this unique self.points_id
             #print(f'dropping {num_drops} of {num_flowlines} rows')
             self.hydrolinked_gdf.drop(index=drop_indices, inplace=True)
 
@@ -478,8 +478,8 @@ class TerrainWorksLink():
     def unlinked_points_handling(self):
         """Handles what to do with points that did not link to any hydrography."""
         # Join the original point data back with the linked data to show which points didn't link anywhere
-        # Find points (using source_id) that are not in the hydrolinked_gdf (this means no link was found for those points)
-        unlinked_points_gdf = self.points_gdf[~self.points_gdf[self.source_id].isin(self.hydrolinked_gdf[self.source_id])].copy()
+        # Find points (using points_id) that are not in the hydrolinked_gdf (this means no link was found for those points)
+        unlinked_points_gdf = self.points_gdf[~self.points_gdf[self.points_id].isin(self.hydrolinked_gdf[self.points_id])].copy()
         # Rename geometry field to match hydrolinked_gdf
         unlinked_points_gdf.rename(columns={'geometry': 'geometry_point'}, inplace=True)
         # Concatenate the un-linked points back into the hydrolinked_gdf
