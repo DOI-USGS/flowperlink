@@ -116,18 +116,25 @@ python -m flowperlink.preprocess_flowlines
 
 #### Snapping with tributary junction informaiton
 
+Start an interactive python shell to run the following code (or run the code from your own python script or jupyter notebook):
+
+```bash
+conda activate flowperenv
+python
+```
+
 ```python
 from flowperlink.flowper import FlowperLink
 
-nhdplushr = FlowperLink(points = 'FLOwPER_points.shp',   
+nhdplushr = FlowperLink(points = './FLOwPER_data/FLOwPER_merged.shp',   
                   flowlines = 'NHDPLUS_H_1701_HU4_GPKG_preprocessed.gpkg', 
-                  source_identifier = 'GlobalID',  
-                  flowlines_identifier = ' Permanent_Identifier', 
+                  points_identifier = 'GlobalID',  
+                  flowlines_identifier = 'Permanent_Identifier', 
                   water_name = 'Strm_Nm_Sp',  
-                  flowline_name = 'GNIS_name', 
+                  flowline_name = 'GNIS_Name', 
                   buffer_m = 'AccuracyH', 
                   buffer_multiplier = 10, 
-                  default_buffer = 100, 
+                  replace_nodata_buffer_with = 100, 
                   no_stream_name_min_buffer = 10, 
                   yes_stream_name_min_buffer = 15, 
                   max_buffer_distance = 100, 
@@ -150,25 +157,21 @@ nhdplushr.buffered_points_gdf.to_file('nhdplushr_snapped_buffer_pts.gpkg')
 ```python
 from flowperlink.terrainworks import TerrainWorksLink
 
-tw = TerrainWorksLink(points = 'FLOwPER_points.shp',   
-                      flowlines = 'Nodes_UpperDeschutes.gdb',  
-                      source_identifier='OBJECTID', 
+tw = TerrainWorksLink(points = './FLOwPER_data/FLOwPER_merged.shp',   
+                      flowlines = 'tw_example_flowlines.gpkg',  
+                      points_identifier='GlobalID', 
                       flowlines_identifier='NODE_ID',  
                       water_name = None,  
                       flowline_name = None, 
                       buffer_m = 100, 
                       buffer_multiplier = 1, 
-                      default_buffer = 100, 
+                      replace_nodata_buffer_with = 100, 
                       no_stream_name_min_buffer = 10, 
                       yes_stream_name_min_buffer = 15, 
                       max_buffer_distance = 100, 
                       flowline_grid_offsets = (1, 1)) 
 
-tw.hydrolink_method(method = 'closest', 
-                    trib_jcn = None, 
-                    hydro_type = 'flowline',  
-                    outfile_name = 'tw_snapped_output.gpkg', 
-                    similarity_cutoff = 0.6) 
+tw.hydrolink_method(outfile_name = 'tw_snapped_output.gpkg') 
 
 tw.write_connecting_lines(outfile_name='tw_snapped_connectors.gpkg') 
 

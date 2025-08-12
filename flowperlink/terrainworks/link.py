@@ -184,8 +184,8 @@ class TerrainWorksLink():
         print('Ready to hydrolink.')
 
     def hydrolink_method(self,
-                         method: Literal['name_match', 'closest'] = 'name_match',
-                         trib_jcn: str = 'TribJncTyp',
+                         method: Literal['name_match', 'closest'] = 'closest',
+                         trib_jcn: str = None,
                          hydro_type: Literal['flowline', 'waterbody'] = 'flowline',
                          outfile_name: Union[str, Path] = 'custom_hydrolink_output.gpkg',
                          similarity_cutoff: float = 0.6):

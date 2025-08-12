@@ -1,4 +1,4 @@
-name: flowperenv_test
+name: flowperenv_test3
 channels:
   - conda-forge
 dependencies:
