@@ -91,10 +91,8 @@ class TerrainWorksLink():
             or feet.
         Buffer recommendations:
             Because larger buffers may result in longer run times or memory errors, the buffer radius around
-            input points is limited to less than 2000 m. A minimum buffer size of 0.01 m is also enforced
-            due to the GeoPandas overlay method requiring points and flowlines to be of the same geometry
-            type, in this case polygons. Any input point buffer parameters that fall outside of this range
-            (0.01 - 2000) will be clipped to this range.
+            input points is limited to less than 2000 m. Any input point buffer parameters that fall outside 
+            of the range 0 - 2000 m will be clipped to this range.
         """
 
         # column name in the points dataset with a unique ID for each point
@@ -127,6 +125,9 @@ class TerrainWorksLink():
         self.no_stream_name_min_buffer = no_stream_name_min_buffer
         self.yes_stream_name_min_buffer = yes_stream_name_min_buffer
         self.max_buffer_distance = max_buffer_distance
+        # check these input values
+        self.check_input_values()
+
 
         # get option for flowline grid offsets (x, y) in meters
         self.flowlines_grid_offsets = flowline_grid_offsets
@@ -493,6 +494,28 @@ class TerrainWorksLink():
         convex_hull_buffer = self.max_buffer_distance # add a buffer to the convex hull equal to the maximum allowed point buffer distance (search radius)
         self.hydrolinked_gdf = self.hydrolinked_gdf[self.hydrolinked_gdf['geometry'].within(convex_hull.buffer(convex_hull_buffer))] # this check could be performed at the start of the processing, to avoid finding out only at the end that there are no overlaping points to output
 
+    def check_input_values(self):
+        """Check the user-input values of buffer distance parameters for negatives and zeros."""
+
+        if not isinstance(self.buffer_m, str):
+            if self.buffer_m <= 0:
+                self.message = 'Parameter buffer_m must be a distance in meters greater than zero.'
+                self.error_handling()
+        if self.buffer_multiplier <= 0:
+            self.message = 'Parameter buffer_multiplier must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.replace_nodata_buffer_with <= 0:
+            self.message = 'Parameter replace_nodata_buffer_with must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.no_stream_name_min_buffer <= 0:
+            self.message = 'Parameter no_stream_name_min_buffer must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.yes_stream_name_min_buffer <= 0:
+            self.message = 'Parameter yes_stream_name_min_buffer must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.max_buffer_distance <= 0:
+            self.message = 'Parameter max_buffer_distance_multiplier must be a distance in meters greater than zero.'
+            self.error_handling()
 
 
     def write_hydrolink(self, outfile_name='custom_hydrolink_output.gpkg'):
