@@ -80,20 +80,21 @@ class TerrainWorksLink():
 
         Notes
         ----------
-        Coordinate reference system recommendations
-            Ideally we would use NAD83 (CRS 4269), WGS84 (CRS 4326), Albers (CRS 5070) like the rest of
-            hydrolink. Currently using EPSG 4269. Though there is an use_crs parameter, this parameter
-            is not being used. Internally, whatever CRS the input points and input flowlines are in,
-            they are both reprojected to a common UTM CRS based on the location of the points dataset.
-            The hydrolinked results are then reprojected into EPSG 4269 before saving the output file.
-        Source name recommendations
-            To be most effective the names under water_name should contain no abbreviations and only
-            contain official names from USGS Geospatial Names Information System (GNIS).
-        Buffer recommendations
-            Larger buffers may result in longer run times.
-        Expected speed note
-            TBD after further testing.
-
+        Coordinate reference system recommendations:
+            A coordinate reference system with units in meters (or feet) should be used, such as a local
+            UTM CRS. The optional use_crs parameter allows you to specify whether you would like to use
+            the CRS of the input points data, input flowlines data, or another CRS. When "points" or
+            "flowlines" is chosen for use_crs, if the chosen CRS is not already UTM, then estimate_utm_crs()
+            is used to find the appropriate local UTM CRS. When another CRS is chosen for use_crs (by
+            providing a string or int that can be read by pyproj.CRS.from_user_input()), the use of a UTM
+            CRS is not enforced. Users are cautioned from providing a use_crs with units other than meters
+            or feet.
+        Buffer recommendations:
+            Because larger buffers may result in longer run times or memory errors, the buffer radius around
+            input points is limited to less than 2000 m. A minimum buffer size of 0.01 m is also enforced
+            due to the GeoPandas overlay method requiring points and flowlines to be of the same geometry
+            type, in this case polygons. Any input point buffer parameters that fall outside of this range
+            (0.01 - 2000) will be clipped to this range.
         """
 
         # column name in the points dataset with a unique ID for each point
