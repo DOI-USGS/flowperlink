@@ -17,7 +17,7 @@ Steven Pestana, Physical Scientist, Washington Water Science Center, Tacoma, Was
 
 ## USGS Software Release Information
 
-citation
+Pestana, S., Chelgren, N., Heaston, E., Jaeger, K., Labriola, L., Sando, R., Wurster., P. (2025). flowperlink Version-1.0.0. U.S. Geological Survey software release. https://doi.org/10.5066/P1DN3GHB
 
 IPDS-`181392`
 
