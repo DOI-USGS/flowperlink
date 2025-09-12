@@ -1,4 +1,6 @@
-requests==2.28.2
-geopandas==1.0.1
-hydrolink==2.0.0
-sciencebasepy==2.0.18
+requests
+geopandas>=1.0.1
+sciencebasepy>=2.0.18
+setuptools
+networkx
+hydrolink>=2.0.0

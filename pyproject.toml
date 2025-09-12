@@ -20,7 +20,6 @@ classifiers = [
   "Topic :: Scientific/Engineering :: GIS",
   "Topic :: Scientific/Engineering :: Hydrology",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -30,9 +29,11 @@ classifiers = [
 ]
 dependencies = [
   "requests",
-  "geopandas",
-  "sciencebasepy",
-  "hydrolink @ git+https://code.usgs.gov/sas/bioscience/hlt/hydrolink.git@custom-hydrography",
+  "geopandas>=1.0.1",
+  "sciencebasepy>=2.0.18",
+  "setuptools",
+  "networkx",
+  "hydrolink @ git+https://code.usgs.gov/spestana/hydrolink.git@custom-hydrography",
 ]
 
 [project.urls]

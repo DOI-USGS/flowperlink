@@ -2,24 +2,24 @@
 
 ![Generic badge](https://img.shields.io/badge/Version-1.0.0-<COLOR>.svg)
 
-The flowperlink package extends the functionality of hydrolink by adding new features specific for linking FLOwPER (streamflow permanence) observation data to various hydrography datasets (e.g. NHDPlusHR, TerrainWorks), for ready ingestion of the observation data into the Probability of Streamflow Permanence (PROSPER) model ([Jaeger et al., 2019](https://doi.org/10.1016/j.hydroa.2018.100005)).
+The flowperlink package extends the functionality of [hydrolink](https://code.usgs.gov/sas/bioscience/hlt/hydrolink) by adding new features specific for linking [FLOwPER (stream FLOw PERmanence) observation data](https://www.usgs.gov/national-hydrography/national-hydrography-dataset) to various hydrography datasets (e.g. the [National Hydrography Dataset (NHD)](https://www.usgs.gov/national-hydrography/national-hydrography-dataset), TerrainWorks), for ready ingestion of the observation data into the PRObability of Streamflow PERmanence (PROSPER) model ([Jaeger et al., 2019](https://doi.org/10.1016/j.hydroa.2018.100005)).
 
 ## Features
 
-* The `FlowperLink` class, derived from hydrolink's `CustomHydrography`, allows the snapping of FLOwPER point observations using tributary junction information and adjustable buffer distances to account for GPS accuracy and hydrography linework uncertainty.
+* The `FlowperLink` class, derived from hydrolink's `CustomHydrography`, allows the snapping of FLOwPER point observations using tributary junction information and adjustable buffer distances to account for uncertainty in GPS accuracy and hydrography linework.
 * The `TerrainWorksLink` class, for snapping FLOwPER and other streamflow permanence observations to high-resolution terrain-derived hydrography from TerrainWorks.
 * A preprocessing script, `preprocess_flowlines.py`, to derive tributary junction information from NHD hydrography datasets is included, to allow snapping FLOwPER points using the tributary junction fields in the observation data.
 * Other helper scripts: `download_flowper.py` for downloading FLOwPER data from ScienceBase via command line, and `merge_flowper.py` to merge multiple FLOwPER shapefiles into a single GeoDataFrame after downloading.
 
 ## Contact Information
 
-Steven Pestana - spestana@usgs.gov
+Steven Pestana, Physical Scientist, Washington Water Science Center, Tacoma, Washington, [spestana@usgs.gov](mailto:spestana@usgs.gov), https://orcid.org/0000-0003-3360-0996
 
 ## USGS Software Release Information
 
-citation
+Pestana, S., Chelgren, N., Heaston, E., Jaeger, K., Labriola, L., Sando, R., Wurster., P. (2025). flowperlink Version-1.0.0. U.S. Geological Survey software release. https://doi.org/10.5066/P1DN3GHB
 
-IPDS  number
+IPDS-`181392`
 
 ## Quick Start
 
@@ -69,14 +69,14 @@ The commands below illustrate usage of the `download_flowper.py` and `merge_flow
 Download a default list of FLOwPER observations from ScienceBase:
 
 ```bash
-python -m flowperlink.download_flowper --download_directory D:/FLOwPER_data/downloads/
+python -m flowperlink.download_flowper --download_directory ./FLOwPER_data/downloads/
 ```
 
 Or, download from a custom list of ScienceBase datasets in a csv file:
 
 ```bash
 python -m flowperlink.download_flowper
-    --download_directory D:/FLOwPER_data/downloads/ 
+    --download_directory ./FLOwPER_data/downloads/ 
     --input_filepath flowper_records.csv 
     --name_col dataset_name 
     --id_col sciencebase_ID
@@ -87,15 +87,15 @@ Merge the downloaded datasets into one shapefile:
 ```bash
 # Merge FLOwPER shapefiles that have been downloaded
 python -m flowperlink.merge_flowper
-    --input_directory D:/FLOwPER_data/downloads/ 
-    --output_filepath D:/FLOwPER_data/FLOwPER_merged.shp 
+    --input_directory ./FLOwPER_data/downloads/ 
+    --output_filepath ./FLOwPER_data/FLOwPER_merged.shp 
     --crs 4326
 ```
 
 
 #### Preprocessing hydrography flowlines
 
-The command below illustrates usage of the `preprocess_flowlines.py` script with an NHDPlusHR hydrography dataset, where tributary junction in formation is retrieved from the NHDFlowline, NHDPlusFlow, and NHDPlusFlowlineVAA layers of the geopackage file. In this example, a distance of 30 m is used to define the portion of flowlines near tributary junctions, and the output is written to a new geopackage file. 
+The command below illustrates usage of the `preprocess_flowlines.py` script with the National Hydrography Dataset Plus, High Resolution (NHDPlusHR), where tributary junction information is retrieved from the NHDFlowline, NHDPlusFlow, and NHDPlusFlowlineVAA layers of the geopackage file. In this example, a distance of 30 m is used to define the portion of flowlines near tributary junctions, and the output is written to a new geopackage file. The NHDPlusHR file geopackage file used in this example can be downloaded [here](https://prd-tnm.s3.amazonaws.com/StagedProducts/Hydrography/NHDPlusHR/VPU/Current/GPKG/NHDPLUS_H_1701_HU4_GPKG.zip).
 
 ```bash
 python -m flowperlink.preprocess_flowlines
@@ -116,18 +116,25 @@ python -m flowperlink.preprocess_flowlines
 
 #### Snapping with tributary junction informaiton
 
+Start an interactive python shell to run the following code (or run the code from your own python script or jupyter notebook):
+
+```bash
+conda activate flowperenv
+python
+```
+
 ```python
 from flowperlink.flowper import FlowperLink
 
-nhdplushr = FlowperLink(points = 'FLOwPER_points.shp',   
+nhdplushr = FlowperLink(points = './FLOwPER_data/FLOwPER_merged.shp',   
                   flowlines = 'NHDPLUS_H_1701_HU4_GPKG_preprocessed.gpkg', 
-                  source_identifier = 'GlobalID',  
-                  flowlines_identifier = ' Permanent_Identifier', 
+                  points_identifier = 'GlobalID',  
+                  flowlines_identifier = 'Permanent_Identifier', 
                   water_name = 'Strm_Nm_Sp',  
-                  flowline_name = 'GNIS_name', 
+                  flowline_name = 'GNIS_Name', 
                   buffer_m = 'AccuracyH', 
                   buffer_multiplier = 10, 
-                  default_buffer = 100, 
+                  replace_nodata_buffer_with = 100, 
                   no_stream_name_min_buffer = 10, 
                   yes_stream_name_min_buffer = 15, 
                   max_buffer_distance = 100, 
@@ -150,25 +157,21 @@ nhdplushr.buffered_points_gdf.to_file('nhdplushr_snapped_buffer_pts.gpkg')
 ```python
 from flowperlink.terrainworks import TerrainWorksLink
 
-tw = TerrainWorksLink(points = 'FLOwPER_points.shp',   
-                      flowlines = 'Nodes_UpperDeschutes.gdb',  
-                      source_identifier='OBJECTID', 
+tw = TerrainWorksLink(points = './FLOwPER_data/FLOwPER_merged.shp',   
+                      flowlines = 'tw_example_flowlines.gpkg',  
+                      points_identifier='GlobalID', 
                       flowlines_identifier='NODE_ID',  
                       water_name = None,  
                       flowline_name = None, 
                       buffer_m = 100, 
                       buffer_multiplier = 1, 
-                      default_buffer = 100, 
+                      replace_nodata_buffer_with = 100, 
                       no_stream_name_min_buffer = 10, 
                       yes_stream_name_min_buffer = 15, 
                       max_buffer_distance = 100, 
                       flowline_grid_offsets = (1, 1)) 
 
-tw.hydrolink_method(method = 'closest', 
-                    trib_jcn = None, 
-                    hydro_type = 'flowline',  
-                    outfile_name = 'tw_snapped_output.gpkg', 
-                    similarity_cutoff = 0.6) 
+tw.hydrolink_method(outfile_name = 'tw_snapped_output.gpkg') 
 
 tw.write_connecting_lines(outfile_name='tw_snapped_connectors.gpkg') 
 
