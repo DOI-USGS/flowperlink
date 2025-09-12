@@ -80,20 +80,19 @@ class TerrainWorksLink():
 
         Notes
         ----------
-        Coordinate reference system recommendations
-            Ideally we would use NAD83 (CRS 4269), WGS84 (CRS 4326), Albers (CRS 5070) like the rest of
-            hydrolink. Currently using EPSG 4269. Though there is an use_crs parameter, this parameter
-            is not being used. Internally, whatever CRS the input points and input flowlines are in,
-            they are both reprojected to a common UTM CRS based on the location of the points dataset.
-            The hydrolinked results are then reprojected into EPSG 4269 before saving the output file.
-        Source name recommendations
-            To be most effective the names under water_name should contain no abbreviations and only
-            contain official names from USGS Geospatial Names Information System (GNIS).
-        Buffer recommendations
-            Larger buffers may result in longer run times.
-        Expected speed note
-            TBD after further testing.
-
+        Coordinate reference system recommendations:
+            A coordinate reference system with units in meters (or feet) should be used, such as a local
+            UTM CRS. The optional use_crs parameter allows you to specify whether you would like to use
+            the CRS of the input points data, input flowlines data, or another CRS. When "points" or
+            "flowlines" is chosen for use_crs, if the chosen CRS is not already UTM, then estimate_utm_crs()
+            is used to find the appropriate local UTM CRS. When another CRS is chosen for use_crs (by
+            providing a string or int that can be read by pyproj.CRS.from_user_input()), the use of a UTM
+            CRS is not enforced. Users are cautioned from providing a use_crs with units other than meters
+            or feet.
+        Buffer recommendations:
+            Because larger buffers may result in longer run times or memory errors, the buffer radius around
+            input points is limited to less than 2000 m. Any input point buffer parameters that fall outside 
+            of the range 0 - 2000 m will be clipped to this range.
         """
 
         # column name in the points dataset with a unique ID for each point
@@ -126,6 +125,9 @@ class TerrainWorksLink():
         self.no_stream_name_min_buffer = no_stream_name_min_buffer
         self.yes_stream_name_min_buffer = yes_stream_name_min_buffer
         self.max_buffer_distance = max_buffer_distance
+        # check these input values
+        self.check_input_values()
+
 
         # get option for flowline grid offsets (x, y) in meters
         self.flowlines_grid_offsets = flowline_grid_offsets
@@ -184,8 +186,8 @@ class TerrainWorksLink():
         print('Ready to hydrolink.')
 
     def hydrolink_method(self,
-                         method: Literal['name_match', 'closest'] = 'name_match',
-                         trib_jcn: str = 'TribJncTyp',
+                         method: Literal['name_match', 'closest'] = 'closest',
+                         trib_jcn: str = None,
                          hydro_type: Literal['flowline', 'waterbody'] = 'flowline',
                          outfile_name: Union[str, Path] = 'custom_hydrolink_output.gpkg',
                          similarity_cutoff: float = 0.6):
@@ -492,6 +494,28 @@ class TerrainWorksLink():
         convex_hull_buffer = self.max_buffer_distance # add a buffer to the convex hull equal to the maximum allowed point buffer distance (search radius)
         self.hydrolinked_gdf = self.hydrolinked_gdf[self.hydrolinked_gdf['geometry'].within(convex_hull.buffer(convex_hull_buffer))] # this check could be performed at the start of the processing, to avoid finding out only at the end that there are no overlaping points to output
 
+    def check_input_values(self):
+        """Check the user-input values of buffer distance parameters for negatives and zeros."""
+
+        if not isinstance(self.buffer_m, str):
+            if self.buffer_m <= 0:
+                self.message = 'Parameter buffer_m must be a distance in meters greater than zero.'
+                self.error_handling()
+        if self.buffer_multiplier <= 0:
+            self.message = 'Parameter buffer_multiplier must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.replace_nodata_buffer_with <= 0:
+            self.message = 'Parameter replace_nodata_buffer_with must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.no_stream_name_min_buffer <= 0:
+            self.message = 'Parameter no_stream_name_min_buffer must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.yes_stream_name_min_buffer <= 0:
+            self.message = 'Parameter yes_stream_name_min_buffer must be a distance in meters greater than zero.'
+            self.error_handling()
+        if self.max_buffer_distance <= 0:
+            self.message = 'Parameter max_buffer_distance_multiplier must be a distance in meters greater than zero.'
+            self.error_handling()
 
 
     def write_hydrolink(self, outfile_name='custom_hydrolink_output.gpkg'):
