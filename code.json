@@ -34,8 +34,8 @@
         "PROSPER",
         "hydrolink",
         "stream network",
-        "doi|XXXXX",
-        "ipds|XXXXX"
+        "doi|https://doi.org/10.5066/P1DN3GHB",
+        "ipds|181392"
       ],
   
       "languages": [
@@ -48,7 +48,7 @@
       },
   
       "date": {
-        "metadataLastUpdated": "2025-07-21"
+        "metadataLastUpdated": "2025-08-14"
       }
     }
   ]
